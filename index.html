@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>いまどこにいる？</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .icon { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 8px; }
+    p { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
+    button {
+      background: #4f8ef7;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    button:hover { background: #3a7ae0; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .result { margin-top: 24px; display: none; }
+    .map-link {
+      display: block;
+      margin-top: 16px;
+      padding: 12px;
+      background: #f0f7ff;
+      border-radius: 10px;
+      color: #4f8ef7;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .map-link:hover { background: #dbeeff; }
+    .coords { font-size: 12px; color: #999; margin-top: 10px; }
+    .error { margin-top: 20px; color: #e05555; font-size: 14px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📍</div>
+    <h1>いまどこにいる？</h1>
+    <p>ボタンを押すと現在地を取得して、Googleマップのリンクを生成します。<br>ブラウザから位置情報の許可を求められたら「許可」してください。</p>
+    <button id="btn" onclick="getLocation()">現在地を取得する</button>
+    <div class="result" id="result">
+      <a class="map-link" id="mapLink" target="_blank">🗺️ Googleマップで開く</a>
+      <div class="coords" id="coords"></div>
+    </div>
+    <div class="error" id="error">
+      位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
+    </div>
+  </div>
+  <script>
+    function getLocation() {
+      const btn = document.getElementById('btn');
+      btn.textContent = '取得中...';
+      btn.disabled = true;
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          document.getElementById('mapLink').href = mapUrl;
+          document.getElementById('coords').textContent = `緯度: ${lat} / 経度: ${lng}`;
+          document.getElementById('result').style.display = 'block';
+          btn.textContent = '再取得する';
+          btn.disabled = false;
+        },
+        function(err) {
+          document.getElementById('error').style.display = 'block';
+          btn.textContent = '現在地を取得する';
+          btn.disabled = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  </script>
+</body>
+</html>
