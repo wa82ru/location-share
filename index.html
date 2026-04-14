@@ -1,4 +1,4 @@
-<!-- version: 1.2.0 -->
+<!-- version: 1.3.0 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -27,6 +27,16 @@
     }
     .icon { font-size: 48px; margin-bottom: 16px; }
     h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 8px; }
+    .name-tag {
+      display: inline-block;
+      background: #eef4ff;
+      color: #4f8ef7;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
     p { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
     button {
       background: #4f8ef7;
@@ -66,6 +76,7 @@
   <div class="card">
     <div class="icon">📍</div>
     <h1>いまどこにいる？</h1>
+    <div class="name-tag" id="nameTag"></div>
     <p>ボタンを押すと現在地を取得して、GoogleマップのリンクをSlackに送信します。<br>ブラウザから位置情報の許可を求められたら「許可」してください。</p>
     <button id="btn" onclick="getLocation()">現在地を取得してSlackに送る</button>
     <div class="result" id="result">
@@ -76,10 +87,14 @@
     <div class="error" id="error">
       位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
     </div>
-    <div class="version">v1.2.0</div>
+    <div class="version">v1.3.0</div>
   </div>
   <script>
     const PROXY_URL = 'https://frosty-pine-f685slack-proxy.mynameiswataru.workers.dev';
+    const params = new URLSearchParams(window.location.search);
+    const userName = params.get('name') || '名無し';
+
+    document.getElementById('nameTag').textContent = '👤 ' + userName;
 
     function getLocation() {
       const btn = document.getElementById('btn');
@@ -107,7 +122,7 @@
     }
 
     function sendToSlack(mapUrl, lat, lng) {
-      const message = `📍 現在地が共有されました！\n🗺️ ${mapUrl}\n緯度: ${lat} / 経度: ${lng}`;
+      const message = `📍 *${userName}* の現在地が共有されました！\n🗺️ ${mapUrl}\n緯度: ${lat} / 経度: ${lng}`;
       fetch(PROXY_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
