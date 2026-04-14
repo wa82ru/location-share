@@ -1,4 +1,4 @@
-<!-- version: 1.1.0 -->
+<!-- version: 1.2.0 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -76,10 +76,10 @@
     <div class="error" id="error">
       位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
     </div>
-    <div class="version">v1.1.0</div>
+    <div class="version">v1.2.0</div>
   </div>
   <script>
-    const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
+    const PROXY_URL = 'https://frosty-pine-f685slack-proxy.mynameiswataru.workers.dev';
 
     function getLocation() {
       const btn = document.getElementById('btn');
@@ -108,18 +108,16 @@
 
     function sendToSlack(mapUrl, lat, lng) {
       const message = `📍 現在地が共有されました！\n🗺️ ${mapUrl}\n緯度: ${lat} / 経度: ${lng}`;
-      const params = new URLSearchParams();
-      params.append('payload', JSON.stringify({ text: message }));
-      fetch(SLACK_WEBHOOK, {
+      fetch(PROXY_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        body: params
-      }).then(() => {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: message })
+      }).then(res => res.json()).then(data => {
         const status = document.getElementById('slackStatus');
-        status.textContent = '✅ Slackに送信しました！';
-        status.className = 'slack-status sent';
-      }).catch((e) => {
-        document.getElementById('slackStatus').textContent = '⚠️ Slack送信に失敗しました: ' + e.message;
+        status.textContent = data.ok ? '✅ Slackに送信しました！' : '⚠️ 送信に失敗しました';
+        status.className = data.ok ? 'slack-status sent' : 'slack-status';
+      }).catch(() => {
+        document.getElementById('slackStatus').textContent = '⚠️ Slack送信に失敗しました';
       });
     }
   </script>
