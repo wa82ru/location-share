@@ -1,3 +1,4 @@
+<!-- version: 1.1.0 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -58,6 +59,7 @@
     .slack-status { margin-top: 12px; font-size: 13px; color: #666; }
     .slack-status.sent { color: #2eb67d; }
     .error { margin-top: 20px; color: #e05555; font-size: 14px; display: none; }
+    .version { margin-top: 32px; font-size: 11px; color: #ccc; }
   </style>
 </head>
 <body>
@@ -74,6 +76,7 @@
     <div class="error" id="error">
       位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
     </div>
+    <div class="version">v1.1.0</div>
   </div>
   <script>
     const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
@@ -105,17 +108,18 @@
 
     function sendToSlack(mapUrl, lat, lng) {
       const message = `📍 現在地が共有されました！\n🗺️ ${mapUrl}\n緯度: ${lat} / 経度: ${lng}`;
-      const payload = encodeURIComponent(JSON.stringify({ text: message }));
+      const params = new URLSearchParams();
+      params.append('payload', JSON.stringify({ text: message }));
       fetch(SLACK_WEBHOOK, {
         method: 'POST',
         mode: 'no-cors',
-        body: 'payload=' + payload
+        body: params
       }).then(() => {
         const status = document.getElementById('slackStatus');
         status.textContent = '✅ Slackに送信しました！';
         status.className = 'slack-status sent';
-      }).catch(() => {
-        document.getElementById('slackStatus').textContent = '⚠️ Slack送信に失敗しました';
+      }).catch((e) => {
+        document.getElementById('slackStatus').textContent = '⚠️ Slack送信に失敗しました: ' + e.message;
       });
     }
   </script>
