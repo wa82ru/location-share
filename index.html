@@ -55,6 +55,12 @@
     }
     .map-link:hover { background: #dbeeff; }
     .coords { font-size: 12px; color: #999; margin-top: 10px; }
+    .slack-status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #666;
+    }
+    .slack-status.sent { color: #2eb67d; }
     .error { margin-top: 20px; color: #e05555; font-size: 14px; display: none; }
   </style>
 </head>
@@ -62,17 +68,20 @@
   <div class="card">
     <div class="icon">📍</div>
     <h1>いまどこにいる？</h1>
-    <p>ボタンを押すと現在地を取得して、Googleマップのリンクを生成します。<br>ブラウザから位置情報の許可を求められたら「許可」してください。</p>
-    <button id="btn" onclick="getLocation()">現在地を取得する</button>
+    <p>ボタンを押すと現在地を取得して、GoogleマップのリンクをSlackに送信します。<br>ブラウザから位置情報の許可を求められたら「許可」してください。</p>
+    <button id="btn" onclick="getLocation()">現在地を取得してSlackに送る</button>
     <div class="result" id="result">
       <a class="map-link" id="mapLink" target="_blank">🗺️ Googleマップで開く</a>
       <div class="coords" id="coords"></div>
+      <div class="slack-status" id="slackStatus">📨 Slackに送信中...</div>
     </div>
     <div class="error" id="error">
       位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
     </div>
   </div>
   <script>
+    const SLACK_WEBHOOK = 'https://hooks.slack.com/services/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';
+
     function getLocation() {
       const btn = document.getElementById('btn');
       btn.textContent = '取得中...';
@@ -82,19 +91,39 @@
           const lat = pos.coords.latitude.toFixed(6);
           const lng = pos.coords.longitude.toFixed(6);
           const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
           document.getElementById('mapLink').href = mapUrl;
           document.getElementById('coords').textContent = `緯度: ${lat} / 経度: ${lng}`;
           document.getElementById('result').style.display = 'block';
           btn.textContent = '再取得する';
           btn.disabled = false;
+
+          // Slackに送信
+          sendToSlack(mapUrl, lat, lng);
         },
         function(err) {
           document.getElementById('error').style.display = 'block';
-          btn.textContent = '現在地を取得する';
+          btn.textContent = '現在地を取得してSlackに送る';
           btn.disabled = false;
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
+    }
+
+    function sendToSlack(mapUrl, lat, lng) {
+      const message = `📍 現在地が共有されました！\n🗺️ ${mapUrl}\n緯度: ${lat} / 経度: ${lng}`;
+      fetch(SLACK_WEBHOOK, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: message })
+      }).then(() => {
+        const status = document.getElementById('slackStatus');
+        status.textContent = '✅ Slackに送信しました！';
+        status.className = 'slack-status sent';
+      }).catch(() => {
+        document.getElementById('slackStatus').textContent = '⚠️ Slack送信に失敗しました';
+      });
     }
   </script>
 </body>
