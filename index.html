@@ -1,4 +1,4 @@
-<!-- version: 1.6.0 -->
+<!-- version: 1.7.0 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -27,15 +27,6 @@
     }
     .icon { font-size: 48px; margin-bottom: 16px; }
     h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 24px; }
-    .name-tag {
-      display: inline-block;
-      background: #eef4ff;
-      color: #4f8ef7;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
     button {
       background: #4f8ef7;
       color: white;
@@ -46,7 +37,6 @@
       font-weight: 600;
       cursor: pointer;
       width: 100%;
-      margin-top: 24px;
       transition: background 0.2s;
     }
     button:hover { background: #3a7ae0; }
@@ -54,7 +44,11 @@
     .slack-status { margin-top: 20px; font-size: 13px; color: #666; display: none; }
     .slack-status.sent { color: #2eb67d; }
     .error { margin-top: 20px; color: #e05555; font-size: 14px; display: none; }
-    .version { margin-top: 32px; font-size: 11px; color: #ccc; }
+    .footer {
+      margin-top: 32px;
+      font-size: 11px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -66,15 +60,14 @@
     <div class="error" id="error">
       位置情報の取得に失敗しました。<br>ブラウザの設定で位置情報を許可してください。
     </div>
-    <div class="name-tag" id="nameTag"></div>
-    <div class="version">v1.6.0</div>
+    <div class="footer"><span id="nameTag"></span>　v1.7.0</div>
   </div>
   <script>
     const PROXY_URL = 'https://frosty-pine-f685slack-proxy.mynameiswataru.workers.dev';
     const params = new URLSearchParams(window.location.search);
     const userName = params.get('0') || '名無し';
 
-    document.getElementById('nameTag').textContent = '👤 ' + userName;
+    document.getElementById('nameTag').textContent = userName;
 
     function getDeviceInfo() {
       const ua = navigator.userAgent;
